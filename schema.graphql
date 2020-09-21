@@ -1,0 +1,24 @@
+type Story {
+    id: ID!
+    title: String!
+    owner: User!
+}
+
+type User {
+    id: ID!
+    name: String!
+    description: String
+}
+
+type Query {
+    stories: [Story!]!
+}
+
+input NewStory {
+    text: String!
+    ownerId: String!
+}
+
+type Mutation {
+    createStory(input: NewStory!): Story!
+}
