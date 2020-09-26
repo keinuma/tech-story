@@ -5,7 +5,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 	"github.com/keinuma/go-graphql/api/infra/database/dao"
 )
 
@@ -21,7 +21,7 @@ func NewUser(ctx context.Context, tx *gorm.DB) *User {
 	}
 }
 
-func (u *User) CreateUser(user entity.User) (*entity.User, error) {
+func (u *User) CreateUser(user model.User) (*model.User, error) {
 	var daoUser dao.User
 	daoUser = daoUser.ToDAO(user)
 	if err := u.tx.Create(&daoUser).Error; err != nil {

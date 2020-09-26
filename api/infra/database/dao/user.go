@@ -2,7 +2,7 @@ package dao
 
 import (
 	"encoding/json"
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 )
 
 type User struct {
@@ -12,7 +12,7 @@ type User struct {
 	Description *string `json:"description"`
 }
 
-func (u *User) ToDAO(user entity.User) User {
+func (u *User) ToDAO(user model.User) User {
 	daoUser := User{
 		UUID:        user.UUID,
 		Name:        user.Name,
@@ -21,8 +21,8 @@ func (u *User) ToDAO(user entity.User) User {
 	return daoUser
 }
 
-func (u *User) ToEntity() (*entity.User, error) {
-	var entityUser entity.User
+func (u *User) ToEntity() (*model.User, error) {
+	var entityUser model.User
 	bytes, err := json.Marshal(u)
 	if err != nil {
 		return nil, err

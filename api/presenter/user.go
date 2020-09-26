@@ -2,7 +2,7 @@ package presenter
 
 import (
 	"encoding/json"
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 	"github.com/keinuma/go-graphql/api/domain/service"
 	"github.com/keinuma/go-graphql/api/graph/model"
 )
@@ -22,7 +22,7 @@ func NewUser(userService service.User) *User {
 }
 
 func (u *User) CreateUser(input model.NewUser) (*model.User, error) {
-	entityUser := entity.User{
+	entityUser := model.User{
 		UUID:        input.UUID,
 		Name:        input.Name,
 		Description: input.Description,

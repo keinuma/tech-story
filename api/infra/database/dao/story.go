@@ -2,13 +2,13 @@ package dao
 
 import (
 	"encoding/json"
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 )
 
 type Stories []*Story
 
-func (s *Stories) ToEntity() (entity.Stories, error) {
-	var entityStories entity.Stories
+func (s *Stories) ToEntity() (model.Stories, error) {
+	var entityStories model.Stories
 	bytes, err := json.Marshal(s)
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ type Story struct {
 	User  User   `gorm:"foreignKey:User" json:"user"`
 }
 
-func (s *Story) ToDAO(story entity.Story) Story {
+func (s *Story) ToDAO(story model.Story) Story {
 	daoStory := Story{
 		Title: story.Title,
 		User: User{
@@ -36,8 +36,8 @@ func (s *Story) ToDAO(story entity.Story) Story {
 	return daoStory
 }
 
-func (s *Story) ToEntity() (*entity.Story, error) {
-	var entityStory entity.Story
+func (s *Story) ToEntity() (*model.Story, error) {
+	var entityStory model.Story
 	bytes, err := json.Marshal(s)
 	if err != nil {
 		return nil, err

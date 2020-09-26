@@ -1,8 +1,8 @@
 package repository
 
-import "github.com/keinuma/go-graphql/api/domain/entity"
+import "github.com/keinuma/go-graphql/api/domain/model"
 
 type StoryRepository interface {
-	GetStories(limit, offset int) (*entity.Stories, error)
-	CreateStory(story entity.Story) (*entity.Story, error)
+	GetStories(limit, offset int) (*model.Stories, error)
+	CreateStory(story model.Story) (*model.Story, error)
 }

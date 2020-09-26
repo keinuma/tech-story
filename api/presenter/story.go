@@ -3,7 +3,7 @@ package presenter
 import (
 	"encoding/json"
 
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 	"github.com/keinuma/go-graphql/api/domain/service"
 	"github.com/keinuma/go-graphql/api/graph/model"
 )
@@ -41,9 +41,9 @@ func (s *Story) GetStories(limit, offset int) ([]*model.Story, error) {
 }
 
 func (s *Story) CreateStory(input model.NewStory) (*model.Story, error) {
-	storyEntity := entity.Story{
+	storyEntity := model.Story{
 		Title: input.Text,
-		User: &entity.User{
+		User: &model.User{
 			ID: input.UserID,
 		},
 	}

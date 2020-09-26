@@ -1,7 +1,7 @@
 package repository
 
-import "github.com/keinuma/go-graphql/api/domain/entity"
+import "github.com/keinuma/go-graphql/api/domain/model"
 
 type UserRepository interface {
-	CreateUser(user entity.User) (*entity.User, error)
+	CreateUser(user model.User) (*model.User, error)
 }

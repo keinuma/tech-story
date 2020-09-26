@@ -6,7 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 	"github.com/keinuma/go-graphql/api/infra/database/dao"
 )
 
@@ -22,7 +22,7 @@ func NewStory(ctx context.Context, tx *gorm.DB) *Story {
 	}
 }
 
-func (s *Story) GetStories(limit, offset int) (*entity.Stories, error) {
+func (s *Story) GetStories(limit, offset int) (*model.Stories, error) {
 	var daoStories dao.Stories
 	if err := s.tx.Limit(limit).Offset(offset).Find(&daoStories).Error; err != nil {
 		logrus.Error(err)
@@ -35,7 +35,7 @@ func (s *Story) GetStories(limit, offset int) (*entity.Stories, error) {
 	return &entityStory, nil
 }
 
-func (s *Story) CreateStory(story entity.Story) (*entity.Story, error) {
+func (s *Story) CreateStory(story model.Story) (*model.Story, error) {
 	var daoStory dao.Story
 	daoStory = daoStory.ToDAO(story)
 	if err := s.tx.Create(&daoStory).Error; err != nil {

@@ -1,12 +1,12 @@
 package service
 
 import (
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 	"github.com/keinuma/go-graphql/api/domain/repository"
 )
 
 type UserService interface {
-	CreateUser(story entity.User) (*entity.User, error)
+	CreateUser(story model.User) (*model.User, error)
 }
 
 type User struct {
@@ -19,7 +19,7 @@ func NewUser(storyRepository repository.UserRepository) *User {
 	}
 }
 
-func (s *User) CreateUser(input entity.User) (*entity.User, error) {
+func (s *User) CreateUser(input model.User) (*model.User, error) {
 	story, err := s.storyRepository.CreateUser(input)
 	if err != nil {
 		return nil, err

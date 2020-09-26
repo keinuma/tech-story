@@ -1,13 +1,13 @@
 package service
 
 import (
-	"github.com/keinuma/go-graphql/api/domain/entity"
+	"github.com/keinuma/go-graphql/api/domain/model"
 	"github.com/keinuma/go-graphql/api/domain/repository"
 )
 
 type StoryService interface {
-	GetStories(limit, offset int) (*entity.Stories, error)
-	CreateStory(story entity.Story) (*entity.Story, error)
+	GetStories(limit, offset int) (*model.Stories, error)
+	CreateStory(story model.Story) (*model.Story, error)
 }
 
 type Story struct {
@@ -20,7 +20,7 @@ func NewStory(storyRepository repository.StoryRepository) *Story {
 	}
 }
 
-func (s *Story) GetStories(limit, offset int) (*entity.Stories, error) {
+func (s *Story) GetStories(limit, offset int) (*model.Stories, error) {
 	stories, err := s.storyRepository.GetStories(limit, offset)
 	if err != nil {
 		return nil, err
@@ -28,7 +28,7 @@ func (s *Story) GetStories(limit, offset int) (*entity.Stories, error) {
 	return stories, err
 }
 
-func (s *Story) CreateStory(input entity.Story) (*entity.Story, error) {
+func (s *Story) CreateStory(input model.Story) (*model.Story, error) {
 	story, err := s.storyRepository.CreateStory(input)
 	if err != nil {
 		return nil, err
