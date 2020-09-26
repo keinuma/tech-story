@@ -2,15 +2,15 @@ package presenter
 
 import (
 	"encoding/json"
+	"github.com/keinuma/tech-story/presenter/request"
 
-	"github.com/keinuma/go-graphql/api/graph/model"
 	"github.com/keinuma/tech-story/domain/model"
 	"github.com/keinuma/tech-story/domain/service"
 )
 
 type StoryHandler interface {
 	GetStories(limit, offset int) ([]*model.Story, error)
-	CreateStory(input model.NewStory) (*model.Story, error)
+	CreateStory(input request.NewStory) (*model.Story, error)
 }
 
 type Story struct {
@@ -40,7 +40,7 @@ func (s *Story) GetStories(limit, offset int) ([]*model.Story, error) {
 	return storyModels, err
 }
 
-func (s *Story) CreateStory(input model.NewStory) (*model.Story, error) {
+func (s *Story) CreateStory(input request.NewStory) (*model.Story, error) {
 	storyEntity := model.Story{
 		Title: input.Text,
 		User: &model.User{

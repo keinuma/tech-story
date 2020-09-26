@@ -2,13 +2,15 @@ package echo
 
 import (
 	"context"
+	"github.com/sirupsen/logrus"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
-	"github.com/keinuma/go-graphql/api/graph"
-	"github.com/keinuma/go-graphql/api/graph/generated"
+	"github.com/keinuma/tech-story/graphql"
+	"github.com/keinuma/tech-story/graphql/generated"
 	"github.com/keinuma/tech-story/infra/database/gorm"
 )
 
@@ -17,9 +19,10 @@ func (s *Server) InitRouter(ctx context.Context) {
 	s.Engine.Use(middleware.Recover())
 
 	conn := gorm.Connection
+	logrus.Info(conn)
 
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(
-		generated.Config{Resolvers: &graph.Resolver{
+		generated.Config{Resolvers: &graphql.Resolver{
 			DB: conn,
 		}}))
 	playgroundHandler := playground.Handler("GraphQL", "/graphql")

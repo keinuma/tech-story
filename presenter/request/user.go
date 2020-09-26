@@ -1,7 +1,6 @@
-package model
+package request
 
-type User struct {
-	ID          int     `json:"id"`
+type NewUser struct {
 	UUID        string  `json:"uuid"`
 	Name        string  `json:"name"`
 	Description *string `json:"description"`

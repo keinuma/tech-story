@@ -2,13 +2,14 @@ package presenter
 
 import (
 	"encoding/json"
-	"github.com/keinuma/go-graphql/api/graph/model"
+
 	"github.com/keinuma/tech-story/domain/model"
 	"github.com/keinuma/tech-story/domain/service"
+	"github.com/keinuma/tech-story/presenter/request"
 )
 
 type UserHandler interface {
-	CreateUser(input model.NewUser) (*model.User, error)
+	CreateUser(input request.NewUser) (*model.User, error)
 }
 
 type User struct {
@@ -21,7 +22,7 @@ func NewUser(userService service.User) *User {
 	}
 }
 
-func (u *User) CreateUser(input model.NewUser) (*model.User, error) {
+func (u *User) CreateUser(input request.NewUser) (*model.User, error) {
 	entityUser := model.User{
 		UUID:        input.UUID,
 		Name:        input.Name,
