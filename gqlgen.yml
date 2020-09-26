@@ -1,0 +1,18 @@
+schema:
+  - ../*.graphql
+
+autobind:
+  - "github.com/keinuma/tech-story/api/domain/model"
+
+models:
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+  Story:
+    model: github.com/keinuma/tech-story/domain/model.Story
+  NewStory:
+    model: github.com/keinuma/tech-story/domain/model.NewStory
+  User:
+    model: github.com/keinuma/tech-story/domain/model.User
+  NewUser:
+    model: github.com/keinuma/tech-story/domain/model.NewUser

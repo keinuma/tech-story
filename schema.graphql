@@ -1,12 +1,12 @@
 type Story {
-    id: ID!
+    id: Int!
     title: String!
     user: User!
 }
 
 type User {
     id: Int!
-    uuid: ID!
+    uuid: String!
     name: String!
     description: String
 }
