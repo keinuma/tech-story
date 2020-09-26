@@ -3,18 +3,25 @@
 package model
 
 type NewStory struct {
-	Text    string `json:"text"`
-	OwnerID string `json:"ownerId"`
+	Text   string `json:"text"`
+	UserID int    `json:"userId"`
+}
+
+type NewUser struct {
+	UUID        string  `json:"uuid"`
+	Name        string  `json:"name"`
+	Description *string `json:"description"`
 }
 
 type Story struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
-	Owner *User  `json:"owner"`
+	User  *User  `json:"user"`
 }
 
 type User struct {
-	ID          string  `json:"id"`
+	ID          int     `json:"id"`
+	UUID        string  `json:"uuid"`
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
 }

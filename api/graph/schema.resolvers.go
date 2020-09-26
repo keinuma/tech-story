@@ -5,18 +5,39 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/keinuma/go-graphql/api/domain/service"
 	"github.com/keinuma/go-graphql/api/graph/generated"
 	"github.com/keinuma/go-graphql/api/graph/model"
+	"github.com/keinuma/go-graphql/api/infra/database/gateway"
+	"github.com/keinuma/go-graphql/api/presenter"
 )
 
 func (r *mutationResolver) CreateStory(ctx context.Context, input model.NewStory) (*model.Story, error) {
-	panic(fmt.Errorf("not implemented"))
+	storyPresenter := presenter.NewStory(*service.NewStory(gateway.NewStory(ctx, r.DB)))
+	story, err := storyPresenter.CreateStory(input)
+	if err != nil {
+		return nil, err
+	}
+	return story, nil
 }
 
-func (r *queryResolver) Stories(ctx context.Context) ([]*model.Story, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+	userPresenter := presenter.NewUser(*service.NewUser(gateway.NewUser(ctx, r.DB)))
+	user, err := userPresenter.CreateUser(input)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *queryResolver) GetStories(ctx context.Context) ([]*model.Story, error) {
+	storyPresenter := presenter.NewStory(*service.NewStory(gateway.NewStory(ctx, r.DB)))
+	stories, err := storyPresenter.GetStories(100, 0)
+	if err != nil {
+		return nil, err
+	}
+	return stories, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
