@@ -1,25 +1,25 @@
 version: '3.7'
 services:
   mysql:
-    container_name: tech_story_mysql
+    container_name: tech_story_mysql_server
     build: ./mysql
     volumes:
       - ./mysql/data:/var/lib/mysql
     ports:
-      - 33206:3306
+      - 33006:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: tech_story
   api:
     container_name: tech_story_api_server
     build:
-      context: ./api
+      context: .
       target: dev
     volumes:
-      - ./api:/go/api
+      - .:/go/api
     ports:
       - 8000:8000
     links:
       - mysql
     env_file:
-      - api/.env
+      - .env
