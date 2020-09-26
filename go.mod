@@ -1,4 +1,4 @@
-module github.com/keinuma/go-graphql/api
+module github.com/keinuma/tech-story
 
 go 1.15
 
