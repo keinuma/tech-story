@@ -2,12 +2,13 @@ package echo
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/sirupsen/logrus"
 
 	"github.com/keinuma/tech-story/graphql"
 	"github.com/keinuma/tech-story/graphql/generated"
@@ -25,6 +26,8 @@ func (s *Server) InitRouter(ctx context.Context) {
 		generated.Config{Resolvers: &graphql.Resolver{
 			DB: conn,
 		}}))
+	graphqlHandler.Use(extension.FixedComplexityLimit(5))
+
 	playgroundHandler := playground.Handler("GraphQL", "/graphql")
 
 	s.Engine.POST("/graphql", func(c echo.Context) error {
