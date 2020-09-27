@@ -33,3 +33,15 @@ func (u *User) CreateUser(user model.User) (*model.User, error) {
 	}
 	return entityStory, nil
 }
+
+func (u *User) GetUsersByIDs(userIDs []int) (model.Users, error) {
+	var daoUsers dao.Users
+	if err := u.tx.Where("id IN (?)", userIDs).Find(&daoUsers).Error; err != nil {
+		return nil, errors.New("[gateway.GetUsersByIDs] failed get users by ID")
+	}
+	entityUsers, err := daoUsers.ToEntity()
+	if err != nil {
+		return nil, err
+	}
+	return entityUsers, nil
+}

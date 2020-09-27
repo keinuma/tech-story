@@ -5,6 +5,21 @@ import (
 	"github.com/keinuma/tech-story/domain/model"
 )
 
+type Users []*User
+
+func (u *Users) ToEntity() (model.Users, error) {
+	var entityUsers model.Users
+	bytes, err := json.Marshal(u)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(bytes, &entityUsers)
+	if err != nil {
+		return nil, err
+	}
+	return entityUsers, nil
+}
+
 type User struct {
 	ID          int     `json:"id"`
 	UUID        string  `json:"uuid"`

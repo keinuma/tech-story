@@ -7,6 +7,7 @@ import (
 
 type UserService interface {
 	CreateUser(story model.User) (*model.User, error)
+	GetUsersByIDs(userIDs []int) ([]*model.User, error)
 }
 
 type User struct {
@@ -25,4 +26,12 @@ func (s *User) CreateUser(input model.User) (*model.User, error) {
 		return nil, err
 	}
 	return story, err
+}
+
+func (s *User) GetUsersByIDs(userIDs []int) ([]*model.User, error) {
+	users, err := s.storyRepository.GetUsersByIDs(userIDs)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

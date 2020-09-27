@@ -24,7 +24,11 @@ models:
     model: github.com/keinuma/tech-story/domain/model.Story
   User:
     model: github.com/keinuma/tech-story/domain/model.User
+  Match:
+    model: github.com/keinuma/tech-story/domain/model.Match
   NewStory:
     model: github.com/keinuma/tech-story/presenter/request.NewStory
   NewUser:
     model: github.com/keinuma/tech-story/presenter/request.NewUser
+  NewMatch:
+    model: github.com/keinuma/tech-story/presenter/request.NewMatch

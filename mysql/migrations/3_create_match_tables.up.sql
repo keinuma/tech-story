@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS `matches` (
+  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `story_id` BIGINT(20) UNSIGNED NOT NULL,
+  `date` DATETIME NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT NOW(),
+  `updated_at` DATETIME NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+  CONSTRAINT fk_matches_stories
+    FOREIGN KEY matches(story_id)
+    REFERENCES stories(id)
+    ON DELETE RESTRICT ON UPDATE RESTRICT,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE IF NOT EXISTS `matches_users` (
+  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `match_id` BIGINT(20) UNSIGNED NOT NULL,
+  `user_id` BIGINT(20) UNSIGNED NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT NOW(),
+  CONSTRAINT fk_matches_users_matches
+   FOREIGN KEY matches_users(match_id)
+       REFERENCES matches(id)
+       ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT fk_matches_users_users
+    FOREIGN KEY matches_users(user_id)
+      REFERENCES users(id)
+      ON DELETE RESTRICT ON UPDATE RESTRICT,
+PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;

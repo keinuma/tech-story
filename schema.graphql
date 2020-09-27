@@ -1,7 +1,16 @@
+scalar Time
+
 type Story {
     id: Int!
     title: String!
     user: User!
+}
+
+type Match {
+    id: Int!
+    story: Story!
+    date: Time!
+    attendees: [User!]!
 }
 
 type User {
@@ -22,11 +31,19 @@ input NewUser {
     description: String
 }
 
+input NewMatch {
+    storyId: Int!
+    date: Time!
+    attendees: [Int!]!
+}
+
 type Query {
     getStories: [Story!]!
+    getMatches: [Match!]!
 }
 
 type Mutation {
     createStory(input: NewStory!): Story!
     createUser(input: NewUser!): User!
+    createMatch(input: NewMatch!): Match!
 }

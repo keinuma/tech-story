@@ -1,7 +1,6 @@
 package presenter
 
 import (
-	"encoding/json"
 	"github.com/keinuma/tech-story/presenter/request"
 
 	"github.com/keinuma/tech-story/domain/model"
@@ -28,16 +27,7 @@ func (s *Story) GetStories(limit, offset int) ([]*model.Story, error) {
 	if err != nil {
 		return nil, err
 	}
-	var storyModels []*model.Story
-	bytes, err := json.Marshal(stories)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal(bytes, &storyModels)
-	if err != nil {
-		return nil, err
-	}
-	return storyModels, err
+	return *stories, err
 }
 
 func (s *Story) CreateStory(input request.NewStory) (*model.Story, error) {
@@ -51,14 +41,5 @@ func (s *Story) CreateStory(input request.NewStory) (*model.Story, error) {
 	if err != nil {
 		return nil, err
 	}
-	var storyModel model.Story
-	bytes, err := json.Marshal(story)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal(bytes, &storyModel)
-	if err != nil {
-		return nil, err
-	}
-	return &storyModel, err
+	return story, err
 }
