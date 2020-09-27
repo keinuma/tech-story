@@ -24,7 +24,7 @@ func NewStory(ctx context.Context, tx *gorm.DB) *Story {
 
 func (s *Story) GetStories(limit, offset int) (*model.Stories, error) {
 	var daoStories dao.Stories
-	if err := s.tx.Limit(limit).Offset(offset).Find(&daoStories).Error; err != nil {
+	if err := s.tx.Limit(limit).Offset(offset).Preload("User").Find(&daoStories).Error; err != nil {
 		logrus.Error(err)
 		return nil, errors.New("[gateway.GetStories] failed get stories")
 	}
