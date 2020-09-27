@@ -4,7 +4,7 @@ type Users []*User
 
 type User struct {
 	ID          int     `json:"id"`
-	UUID        string  `json:"uuid"`
+	UID         string  `json:"uid"`
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
 }

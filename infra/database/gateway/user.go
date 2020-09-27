@@ -45,3 +45,15 @@ func (u *User) GetUsersByIDs(userIDs []int) (model.Users, error) {
 	}
 	return entityUsers, nil
 }
+
+func (u *User) GetUserByUID(uid string) (*model.User, error) {
+	var daoUser dao.User
+	if err := u.tx.Where("uid = ?", uid).First(&daoUser).Error; err != nil {
+		return nil, errors.New("[gateway.GetUserByUID] failed get user by UID")
+	}
+	entityUser, err := daoUser.ToEntity()
+	if err != nil {
+		return nil, err
+	}
+	return entityUser, nil
+}

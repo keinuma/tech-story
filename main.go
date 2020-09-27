@@ -6,6 +6,7 @@ import (
 
 	"github.com/keinuma/tech-story/infra/database/gorm"
 	"github.com/keinuma/tech-story/infra/echo"
+	"github.com/keinuma/tech-story/infra/firebase"
 	"github.com/keinuma/tech-story/infra/logger"
 	"github.com/keinuma/tech-story/library"
 )
@@ -22,5 +23,6 @@ func init() {
 
 func main() {
 	gorm.InitDB()
+	firebase.Init()
 	echo.Run()
 }

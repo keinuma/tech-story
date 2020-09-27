@@ -22,14 +22,14 @@ func (u *Users) ToEntity() (model.Users, error) {
 
 type User struct {
 	ID          int     `json:"id"`
-	UUID        string  `json:"uuid"`
+	UID         string  `json:"uid"`
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
 }
 
 func (u *User) ToDAO(user model.User) User {
 	daoUser := User{
-		UUID:        user.UUID,
+		UID:         user.UID,
 		Name:        user.Name,
 		Description: user.Description,
 	}

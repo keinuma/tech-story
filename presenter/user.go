@@ -22,7 +22,7 @@ func NewUser(userService service.User) *User {
 
 func (u *User) CreateUser(input request.NewUser) (*model.User, error) {
 	entityUser := model.User{
-		UUID:        input.UUID,
+		UID:         input.UID,
 		Name:        input.Name,
 		Description: input.Description,
 	}

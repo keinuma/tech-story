@@ -1,3 +1,4 @@
 mysql/data
 tmp
 .env
+serviceAccountKey.json

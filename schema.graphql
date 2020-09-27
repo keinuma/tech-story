@@ -15,7 +15,7 @@ type Match {
 
 type User {
     id: Int!
-    uuid: String!
+    uid: String!
     name: String!
     description: String
 }
@@ -26,7 +26,7 @@ input NewStory {
 }
 
 input NewUser {
-    uuid: String!
+    uid: String!
     name: String!
     description: String
 }

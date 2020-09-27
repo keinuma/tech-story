@@ -1,7 +1,7 @@
 package request
 
 type NewUser struct {
-	UUID        string  `json:"uuid"`
+	UID         string  `json:"uid"`
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
 }
