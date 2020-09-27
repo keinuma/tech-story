@@ -26,7 +26,7 @@ func (s *Server) InitRouter(ctx context.Context) {
 		generated.Config{Resolvers: &graphql.Resolver{
 			DB: conn,
 		}}))
-	graphqlHandler.Use(extension.FixedComplexityLimit(5))
+	graphqlHandler.Use(extension.FixedComplexityLimit(7))
 
 	playgroundHandler := playground.Handler("GraphQL", "/graphql")
 

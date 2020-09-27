@@ -21,9 +21,10 @@ func (s *Stories) ToEntity() (model.Stories, error) {
 }
 
 type Story struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	User  User   `gorm:"foreignKey:User" json:"user"`
+	ID     int    `json:"id"`
+	Title  string `json:"title"`
+	UserId int    `json:"userId"`
+	User   User   `gorm:"foreignKey:UserId" json:"user"`
 }
 
 func (s *Story) ToDAO(story model.Story) Story {
