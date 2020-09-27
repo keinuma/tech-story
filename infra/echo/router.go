@@ -2,6 +2,7 @@ package echo
 
 import (
 	"context"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -20,6 +21,9 @@ func (s *Server) InitRouter(ctx context.Context) {
 	s.Engine.Use(middleware.Recover())
 
 	conn := gorm.Connection
+	if os.Getenv("APP_ENV") == "local" {
+		conn = conn.Debug()
+	}
 	logrus.Info(conn)
 
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(
