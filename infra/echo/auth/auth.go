@@ -17,7 +17,7 @@ func Validator(ctx context.Context, conn *gorm.DB) func(next echo.HandlerFunc) e
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			authorization := c.Request().Header.Get("Authorization")
-			idToken := strings.Replace(authorization, "Bearer", "", 1)
+			idToken := strings.Replace(authorization, "Bearer ", "", 1)
 
 			if c.Path() == "/playground" {
 				return next(c)
