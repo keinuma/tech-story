@@ -2,6 +2,7 @@ package gorm
 
 import (
 	"fmt"
+	"gorm.io/gorm/logger"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -23,6 +24,9 @@ func InitDB() *gorm.DB {
 		logrus.Error(err)
 	}
 	Connection = conn
+	if os.Getenv("APP_ENV") == "local" {
+		conn.Logger.LogMode(logger.Info)
+	}
 	return conn
 }
 
