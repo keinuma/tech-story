@@ -32,3 +32,5 @@ models:
     model: github.com/keinuma/tech-story/presenter/request.NewUser
   NewMatch:
     model: github.com/keinuma/tech-story/presenter/request.NewMatch
+  Role:
+    model: github.com/keinuma/tech-story/domain/model.Role

@@ -2,9 +2,9 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"github.com/labstack/echo"
 	"gorm.io/gorm"
+	"net/http"
 	"strings"
 
 	"github.com/keinuma/tech-story/domain/service"
@@ -24,16 +24,16 @@ func Validator(ctx context.Context, conn *gorm.DB) func(next echo.HandlerFunc) e
 			}
 
 			if idToken == "" {
-				return errors.New("[auth.Validator] failed authentication, id token is empty")
+				return echo.NewHTTPError(http.StatusUnauthorized, "認証に失敗しました")
 			}
 			uid, err := firebase.ValidateIDToken(idToken)
 			if err != nil {
-				return errors.New("[auth.Validator] failed authentication, failed validate token")
+				return echo.NewHTTPError(http.StatusUnauthorized, "認証に失敗しました")
 			}
 			userService := service.NewUser(gateway.NewUser(ctx, conn))
 			_, err = userService.GetUsersByUID(*uid)
 			if err != nil {
-				return errors.New("[auth.Validator] failed get user")
+				return echo.NewHTTPError(http.StatusInternalServerError, "通信に失敗しました")
 			}
 			err = next(c)
 			return err

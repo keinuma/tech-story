@@ -21,10 +21,11 @@ func (u *Users) ToEntity() (model.Users, error) {
 }
 
 type User struct {
-	ID          int     `json:"id"`
-	UID         string  `json:"uid"`
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
+	ID          int      `json:"id"`
+	UID         string   `json:"uid"`
+	Name        string   `json:"name"`
+	Description *string  `json:"description"`
+	UserRole    UserRole `json:"userRole"`
 }
 
 func (u *User) ToDAO(user model.User) User {
@@ -47,4 +48,9 @@ func (u *User) ToEntity() (*model.User, error) {
 		return nil, err
 	}
 	return &entityUser, nil
+}
+
+type UserRole struct {
+	UserID string `json:"userId"`
+	Role   string `json:"role"`
 }

@@ -14,6 +14,7 @@ require (
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/mattes/migrate v3.0.1+incompatible // indirect
 	github.com/sirupsen/logrus v1.6.0
+	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	go.uber.org/zap v1.16.0 // indirect
 	google.golang.org/api v0.32.0

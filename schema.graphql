@@ -1,5 +1,3 @@
-scalar Time
-
 type Story {
     id: Int!
     title: String!
@@ -46,4 +44,14 @@ type Mutation {
     createStory(input: NewStory!): Story!
     createUser(input: NewUser!): User!
     createMatch(input: NewMatch!): Match!
+    deleteUser(userId: Int!): Boolean @hasRole(role: ADMIN)
 }
+
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+    ADMIN
+    USER
+}
+
+scalar Time

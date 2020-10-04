@@ -5,7 +5,6 @@ package graphql
 
 import (
 	"context"
-
 	"github.com/keinuma/tech-story/domain/model"
 	"github.com/keinuma/tech-story/domain/service"
 	"github.com/keinuma/tech-story/graphql/generated"
@@ -43,6 +42,11 @@ func (r *mutationResolver) CreateMatch(ctx context.Context, input request.NewMat
 		return nil, err
 	}
 	return match, nil
+}
+
+func (r *mutationResolver) DeleteUser(ctx context.Context, userID int) (*bool, error) {
+	flag := true
+	return &flag, nil
 }
 
 func (r *queryResolver) GetStories(ctx context.Context) ([]*model.Story, error) {

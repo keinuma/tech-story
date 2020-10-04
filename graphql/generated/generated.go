@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -43,6 +44,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, role model.Role) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -57,6 +59,7 @@ type ComplexityRoot struct {
 		CreateMatch func(childComplexity int, input request.NewMatch) int
 		CreateStory func(childComplexity int, input request.NewStory) int
 		CreateUser  func(childComplexity int, input request.NewUser) int
+		DeleteUser  func(childComplexity int, userID int) int
 	}
 
 	Query struct {
@@ -85,6 +88,7 @@ type MutationResolver interface {
 	CreateStory(ctx context.Context, input request.NewStory) (*model.Story, error)
 	CreateUser(ctx context.Context, input request.NewUser) (*model.User, error)
 	CreateMatch(ctx context.Context, input request.NewMatch) (*model.Match, error)
+	DeleteUser(ctx context.Context, userID int) (*bool, error)
 }
 type QueryResolver interface {
 	GetStories(ctx context.Context) ([]*model.Story, error)
@@ -169,6 +173,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(request.NewUser)), true
+
+	case "Mutation.deleteUser":
+		if e.complexity.Mutation.DeleteUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteUser(childComplexity, args["userId"].(int)), true
 
 	case "Query.getMatches":
 		if e.complexity.Query.GetMatches == nil {
@@ -297,9 +313,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "schema.graphql", Input: `scalar Time
-
-type Story {
+	{Name: "schema.graphql", Input: `type Story {
     id: Int!
     title: String!
     user: User!
@@ -345,7 +359,17 @@ type Mutation {
     createStory(input: NewStory!): Story!
     createUser(input: NewUser!): User!
     createMatch(input: NewMatch!): Match!
+    deleteUser(userId: Int!): Boolean @hasRole(role: ADMIN)
 }
+
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+    ADMIN
+    USER
+}
+
+scalar Time
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -353,6 +377,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.Role
+	if tmp, ok := rawArgs["role"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("role"))
+		arg0, err = ec.unmarshalNRole2githubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐRole(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["role"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -396,6 +435,21 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("userId"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
 	return args, nil
 }
 
@@ -468,7 +522,7 @@ func (ec *executionContext) _Match_id(ctx context.Context, field graphql.Collect
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
 	if err != nil {
@@ -502,7 +556,7 @@ func (ec *executionContext) _Match_story(ctx context.Context, field graphql.Coll
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Story, nil
 	})
 	if err != nil {
@@ -536,7 +590,7 @@ func (ec *executionContext) _Match_date(ctx context.Context, field graphql.Colle
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Date, nil
 	})
 	if err != nil {
@@ -570,7 +624,7 @@ func (ec *executionContext) _Match_attendees(ctx context.Context, field graphql.
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Match().Attendees(rctx, obj)
 	})
 	if err != nil {
@@ -611,7 +665,7 @@ func (ec *executionContext) _Mutation_createStory(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateStory(rctx, args["input"].(request.NewStory))
 	})
 	if err != nil {
@@ -652,7 +706,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(request.NewUser))
 	})
 	if err != nil {
@@ -693,7 +747,7 @@ func (ec *executionContext) _Mutation_createMatch(ctx context.Context, field gra
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().CreateMatch(rctx, args["input"].(request.NewMatch))
 	})
 	if err != nil {
@@ -709,6 +763,68 @@ func (ec *executionContext) _Mutation_createMatch(ctx context.Context, field gra
 	res := resTmp.(*model.Match)
 	fc.Result = res
 	return ec.marshalNMatch2ᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐMatch(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteUser(rctx, args["userId"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalNRole2githubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐRole(ctx, "ADMIN")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getStories(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -727,7 +843,7 @@ func (ec *executionContext) _Query_getStories(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().GetStories(rctx)
 	})
 	if err != nil {
@@ -761,7 +877,7 @@ func (ec *executionContext) _Query_getMatches(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Query().GetMatches(rctx)
 	})
 	if err != nil {
@@ -802,7 +918,7 @@ func (ec *executionContext) _Query___type(ctx context.Context, field graphql.Col
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.introspectType(args["name"].(string))
 	})
 	if err != nil {
@@ -833,7 +949,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return ec.introspectSchema()
 	})
 	if err != nil {
@@ -864,7 +980,7 @@ func (ec *executionContext) _Story_id(ctx context.Context, field graphql.Collect
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
 	if err != nil {
@@ -898,7 +1014,7 @@ func (ec *executionContext) _Story_title(ctx context.Context, field graphql.Coll
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Title, nil
 	})
 	if err != nil {
@@ -932,7 +1048,7 @@ func (ec *executionContext) _Story_user(ctx context.Context, field graphql.Colle
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.User, nil
 	})
 	if err != nil {
@@ -966,7 +1082,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.ID, nil
 	})
 	if err != nil {
@@ -1000,7 +1116,7 @@ func (ec *executionContext) _User_uid(ctx context.Context, field graphql.Collect
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.UID, nil
 	})
 	if err != nil {
@@ -1034,7 +1150,7 @@ func (ec *executionContext) _User_name(ctx context.Context, field graphql.Collec
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
 	if err != nil {
@@ -1068,7 +1184,7 @@ func (ec *executionContext) _User_description(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
 	if err != nil {
@@ -1099,7 +1215,7 @@ func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
 	if err != nil {
@@ -1133,7 +1249,7 @@ func (ec *executionContext) ___Directive_description(ctx context.Context, field 
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
 	if err != nil {
@@ -1164,7 +1280,7 @@ func (ec *executionContext) ___Directive_locations(ctx context.Context, field gr
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Locations, nil
 	})
 	if err != nil {
@@ -1198,7 +1314,7 @@ func (ec *executionContext) ___Directive_args(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Args, nil
 	})
 	if err != nil {
@@ -1232,7 +1348,7 @@ func (ec *executionContext) ___EnumValue_name(ctx context.Context, field graphql
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
 	if err != nil {
@@ -1266,7 +1382,7 @@ func (ec *executionContext) ___EnumValue_description(ctx context.Context, field 
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
 	if err != nil {
@@ -1297,7 +1413,7 @@ func (ec *executionContext) ___EnumValue_isDeprecated(ctx context.Context, field
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.IsDeprecated(), nil
 	})
 	if err != nil {
@@ -1331,7 +1447,7 @@ func (ec *executionContext) ___EnumValue_deprecationReason(ctx context.Context, 
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.DeprecationReason(), nil
 	})
 	if err != nil {
@@ -1362,7 +1478,7 @@ func (ec *executionContext) ___Field_name(ctx context.Context, field graphql.Col
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
 	if err != nil {
@@ -1396,7 +1512,7 @@ func (ec *executionContext) ___Field_description(ctx context.Context, field grap
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
 	if err != nil {
@@ -1427,7 +1543,7 @@ func (ec *executionContext) ___Field_args(ctx context.Context, field graphql.Col
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Args, nil
 	})
 	if err != nil {
@@ -1461,7 +1577,7 @@ func (ec *executionContext) ___Field_type(ctx context.Context, field graphql.Col
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
 	if err != nil {
@@ -1495,7 +1611,7 @@ func (ec *executionContext) ___Field_isDeprecated(ctx context.Context, field gra
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.IsDeprecated(), nil
 	})
 	if err != nil {
@@ -1529,7 +1645,7 @@ func (ec *executionContext) ___Field_deprecationReason(ctx context.Context, fiel
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.DeprecationReason(), nil
 	})
 	if err != nil {
@@ -1560,7 +1676,7 @@ func (ec *executionContext) ___InputValue_name(ctx context.Context, field graphq
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
 	})
 	if err != nil {
@@ -1594,7 +1710,7 @@ func (ec *executionContext) ___InputValue_description(ctx context.Context, field
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Description, nil
 	})
 	if err != nil {
@@ -1625,7 +1741,7 @@ func (ec *executionContext) ___InputValue_type(ctx context.Context, field graphq
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Type, nil
 	})
 	if err != nil {
@@ -1659,7 +1775,7 @@ func (ec *executionContext) ___InputValue_defaultValue(ctx context.Context, fiel
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.DefaultValue, nil
 	})
 	if err != nil {
@@ -1690,7 +1806,7 @@ func (ec *executionContext) ___Schema_types(ctx context.Context, field graphql.C
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Types(), nil
 	})
 	if err != nil {
@@ -1724,7 +1840,7 @@ func (ec *executionContext) ___Schema_queryType(ctx context.Context, field graph
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.QueryType(), nil
 	})
 	if err != nil {
@@ -1758,7 +1874,7 @@ func (ec *executionContext) ___Schema_mutationType(ctx context.Context, field gr
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.MutationType(), nil
 	})
 	if err != nil {
@@ -1789,7 +1905,7 @@ func (ec *executionContext) ___Schema_subscriptionType(ctx context.Context, fiel
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.SubscriptionType(), nil
 	})
 	if err != nil {
@@ -1820,7 +1936,7 @@ func (ec *executionContext) ___Schema_directives(ctx context.Context, field grap
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Directives(), nil
 	})
 	if err != nil {
@@ -1854,7 +1970,7 @@ func (ec *executionContext) ___Type_kind(ctx context.Context, field graphql.Coll
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Kind(), nil
 	})
 	if err != nil {
@@ -1888,7 +2004,7 @@ func (ec *executionContext) ___Type_name(ctx context.Context, field graphql.Coll
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Name(), nil
 	})
 	if err != nil {
@@ -1919,7 +2035,7 @@ func (ec *executionContext) ___Type_description(ctx context.Context, field graph
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Description(), nil
 	})
 	if err != nil {
@@ -1957,7 +2073,7 @@ func (ec *executionContext) ___Type_fields(ctx context.Context, field graphql.Co
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Fields(args["includeDeprecated"].(bool)), nil
 	})
 	if err != nil {
@@ -1988,7 +2104,7 @@ func (ec *executionContext) ___Type_interfaces(ctx context.Context, field graphq
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.Interfaces(), nil
 	})
 	if err != nil {
@@ -2019,7 +2135,7 @@ func (ec *executionContext) ___Type_possibleTypes(ctx context.Context, field gra
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.PossibleTypes(), nil
 	})
 	if err != nil {
@@ -2057,7 +2173,7 @@ func (ec *executionContext) ___Type_enumValues(ctx context.Context, field graphq
 	}
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.EnumValues(args["includeDeprecated"].(bool)), nil
 	})
 	if err != nil {
@@ -2088,7 +2204,7 @@ func (ec *executionContext) ___Type_inputFields(ctx context.Context, field graph
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.InputFields(), nil
 	})
 	if err != nil {
@@ -2119,7 +2235,7 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from auth stack in children
+		ctx = rctx // use context from middleware stack in children
 		return obj.OfType(), nil
 	})
 	if err != nil {
@@ -2327,6 +2443,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deleteUser":
+			out.Values[i] = ec._Mutation_deleteUser(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2841,6 +2959,16 @@ func (ec *executionContext) unmarshalNNewStory2githubᚗcomᚋkeinumaᚋtechᚑs
 func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋkeinumaᚋtechᚑstoryᚋpresenterᚋrequestᚐNewUser(ctx context.Context, v interface{}) (request.NewUser, error) {
 	res, err := ec.unmarshalInputNewUser(ctx, v)
 	return res, graphql.WrapErrorWithInputPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRole2githubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐRole(ctx context.Context, v interface{}) (model.Role, error) {
+	var res model.Role
+	err := res.UnmarshalGQL(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNRole2githubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐRole(ctx context.Context, sel ast.SelectionSet, v model.Role) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNStory2githubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐStory(ctx context.Context, sel ast.SelectionSet, v model.Story) graphql.Marshaler {
