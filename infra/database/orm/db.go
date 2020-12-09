@@ -1,4 +1,4 @@
-package gorm
+package orm
 
 import (
 	"fmt"
@@ -9,8 +9,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
-
-var Connection *gorm.DB
 
 const (
 	maxIdleConnsCount = 250
@@ -23,9 +21,9 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		logrus.Error(err)
 	}
-	Connection = conn
 	if os.Getenv("APP_ENV") == "local" {
 		conn.Logger.LogMode(logger.Info)
+		conn = conn.Debug()
 	}
 	return conn
 }

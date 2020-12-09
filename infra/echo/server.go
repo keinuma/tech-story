@@ -2,6 +2,7 @@ package echo
 
 import (
 	"context"
+	"github.com/keinuma/tech-story/infra/database/orm"
 	"os"
 
 	"github.com/labstack/echo"
@@ -21,7 +22,8 @@ func newServer() *Server {
 func Run() {
 	ctx := context.Background()
 	s := newServer()
-	s.InitRouter(ctx)
+	conn := orm.InitDB()
+	s.InitRouter(ctx, conn)
 	s.Engine.HideBanner = true
 	s.Engine.HidePort = true
 	logrus.Debug("starting api server")

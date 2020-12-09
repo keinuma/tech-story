@@ -23,10 +23,10 @@ func (m *Matches) ToEntity() ([]*model.Match, error) {
 
 type Match struct {
 	ID        int       `json:"id"`
-	StoryID   int       `gorm:"foreignKey:StoryId" json:"storyId"`
+	StoryID   int       `orm:"foreignKey:StoryId" json:"storyId"`
 	Story     Story     `json:"story"`
 	Date      time.Time `json:"date"`
-	Attendees []*User   `gorm:"many2many:matches_users" json:"attendees"`
+	Attendees []*User   `orm:"many2many:matches_users" json:"attendees"`
 }
 
 func (m *Match) ToDAO(match model.Match) Match {
