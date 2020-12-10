@@ -83,7 +83,7 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		CreateMatch func(childComplexity int, userUUID string) int
+		CreateMatch func(childComplexity int, userUID string) int
 	}
 
 	User struct {
@@ -109,7 +109,7 @@ type QueryResolver interface {
 	GetMatches(ctx context.Context) ([]*model.Match, error)
 }
 type SubscriptionResolver interface {
-	CreateMatch(ctx context.Context, userUUID string) (<-chan *model.Match, error)
+	CreateMatch(ctx context.Context, userUID string) (<-chan *model.Match, error)
 }
 
 type executableSchema struct {
@@ -281,7 +281,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Subscription.CreateMatch(childComplexity, args["userUUID"].(string)), true
+		return e.complexity.Subscription.CreateMatch(childComplexity, args["userUID"].(string)), true
 
 	case "User.description":
 		if e.complexity.User.Description == nil {
@@ -455,7 +455,7 @@ type Mutation {
 }
 
 type Subscription {
-    createMatch(userUUID: String!): Match
+    createMatch(userUID: String!): Match
 }
 
 directive @hasRole(role: Role!) on FIELD_DEFINITION
@@ -583,14 +583,14 @@ func (ec *executionContext) field_Subscription_createMatch_args(ctx context.Cont
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["userUUID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userUUID"))
+	if tmp, ok := rawArgs["userUID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userUID"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["userUUID"] = arg0
+	args["userUID"] = arg0
 	return args, nil
 }
 
@@ -1376,7 +1376,7 @@ func (ec *executionContext) _Subscription_createMatch(ctx context.Context, field
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().CreateMatch(rctx, args["userUUID"].(string))
+		return ec.resolvers.Subscription().CreateMatch(rctx, args["userUID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
