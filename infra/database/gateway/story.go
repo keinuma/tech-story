@@ -41,6 +41,10 @@ func (s *Story) CreateStory(story model.Story) (*model.Story, error) {
 	if err := s.tx.Create(&daoStory).Error; err != nil {
 		return nil, errors.New("[gateway.CreateStory] failed create story")
 	}
+	if err := s.tx.Preload("User").Where("id = ?", daoStory.ID).First(&daoStory).Error; err != nil {
+		logrus.Error(err.Error)
+		return nil, errors.New("[gateway.CreateStory] failed get story")
+	}
 	entityStory, err := daoStory.ToEntity()
 	if err != nil {
 		return nil, err
