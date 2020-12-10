@@ -24,7 +24,7 @@ type Story struct {
 	ID     int    `json:"id"`
 	Title  string `json:"title"`
 	UserId int    `json:"userId"`
-	User   User   `orm:"foreignKey:UserId" json:"user"`
+	User   User   `gorm:"foreignKey:UserId" json:"user"`
 }
 
 func (s *Story) ToDAO(story model.Story) Story {
