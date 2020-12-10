@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"sync"
-	"time"
 
 	"github.com/go-redis/redis/v8"
 
@@ -53,12 +52,6 @@ func (s *Subscriber) StartMatchChannel(ctx context.Context) {
 }
 
 func (s *Subscriber) Publish(ctx context.Context, match *model.Match) error {
-	userUID := match.Story.User.UID
-	result, err := s.Store.Client.SetXX(ctx, userUID, userUID, 60*time.Minute).Result()
-	if result == false {
-		return err
-	}
-
 	matchJSON, err := json.Marshal(match)
 	if err != nil {
 		return err
