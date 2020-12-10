@@ -28,7 +28,8 @@ func Run() {
 	if err != nil {
 		os.Exit(1)
 	}
-	s.InitRouter(ctx, conn, storeConn)
+	subscriber := store.NewSubscriber(*storeConn)
+	s.InitRouter(ctx, conn, storeConn, subscriber)
 	s.Engine.HideBanner = true
 	s.Engine.HidePort = true
 	logrus.Debug("starting api server")

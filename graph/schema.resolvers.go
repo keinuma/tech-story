@@ -43,6 +43,12 @@ func (r *mutationResolver) CreateMatch(ctx context.Context, input request.NewMat
 	if err != nil {
 		return nil, err
 	}
+
+	err = r.Subscriber.Publish(ctx, match)
+	if err != nil {
+		return nil, err
+	}
+
 	return match, nil
 }
 
@@ -73,8 +79,8 @@ func (r *queryResolver) GetMatches(ctx context.Context) ([]*model.Match, error) 
 	return matches, nil
 }
 
-func (r *subscriptionResolver) CreateComment(ctx context.Context, userID string) (<-chan *model.Match, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *subscriptionResolver) CreateMatch(ctx context.Context, userUID string) (<-chan *model.Match, error) {
+	return r.Subscriber.Receive(ctx, userUID), nil
 }
 
 // Match returns generated.MatchResolver implementation.
@@ -93,13 +99,3 @@ type matchResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *matchResolver) Comments(ctx context.Context, obj *model.Match) ([]*model.Comment, error) {
-	return obj.Comments, nil
-}

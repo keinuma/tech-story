@@ -20,7 +20,7 @@ import (
 	"github.com/keinuma/tech-story/infra/store"
 )
 
-func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store.Store) {
+func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store.Store, subscriber *store.Subscriber) {
 	s.Engine.Use(middleware.Logger())
 	s.Engine.Use(middleware.Recover())
 	s.Engine.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -34,8 +34,9 @@ func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(
 		generated.Config{
 			Resolvers: &graph.Resolver{
-				DB:        conn,
-				StorePool: storeConn,
+				DB:         conn,
+				StorePool:  storeConn,
+				Subscriber: subscriber,
 			},
 		}),
 	)

@@ -10,6 +10,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	DB        *gorm.DB
-	StorePool *store.Store
+	DB         *gorm.DB
+	StorePool  *store.Store
+	Subscriber *store.Subscriber
 }
