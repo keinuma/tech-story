@@ -18,12 +18,14 @@ type Subscriber struct {
 	Mutex         sync.Mutex
 }
 
-func NewSubscriber(store Store) *Subscriber {
-	return &Subscriber{
+func NewSubscriber(ctx context.Context, store Store) *Subscriber {
+	subscriber := &Subscriber{
 		Store:         store,
 		MatchChannels: map[string]chan *model.Match{},
 		Mutex:         sync.Mutex{},
 	}
+	subscriber.StartMatchChannel(ctx)
+	return subscriber
 }
 
 func (s *Subscriber) StartMatchChannel(ctx context.Context) {
