@@ -91,7 +91,7 @@ func (s *Subscriber) SetUser(ctx context.Context, userUID string) error {
 		return err
 	}
 	if result == false {
-		return errors.New("This User name has already used")
+		return errors.New("User is already registered ")
 	}
 	return nil
 }
