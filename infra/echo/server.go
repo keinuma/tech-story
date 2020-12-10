@@ -26,6 +26,7 @@ func Run() {
 	conn := orm.InitDB()
 	storeConn, err := store.NewRedisClient(ctx)
 	if err != nil {
+		logrus.Error(err)
 		os.Exit(1)
 	}
 	subscriber := store.NewSubscriber(ctx, *storeConn)

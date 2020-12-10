@@ -30,8 +30,7 @@ func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store
 	}))
 
 	s.Engine.Use(auth.ForContext(ctx, conn))
-
-	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(
+	graphqlHandler := handler.New(generated.NewExecutableSchema(
 		generated.Config{
 			Resolvers: &graph.Resolver{
 				DB:         conn,

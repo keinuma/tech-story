@@ -24,6 +24,9 @@ services:
       - redis
     env_file:
       - .env
+    depends_on:
+      - mysql
+      - redis
   redis:
     image: redis:latest
     ports:
