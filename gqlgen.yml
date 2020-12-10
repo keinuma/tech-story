@@ -3,12 +3,12 @@ schema:
 
 resolver:
   layout: follow-schema
-  dir: graphql
-  package: graphql
+  dir: graph
+  package: graph
   filename_template: "{name}.resolvers.go"
 
 exec:
-  filename: graphql/generated/generated.go
+  filename: graph/generated/generated.go
   package: generated
 
 autobind:
@@ -26,11 +26,15 @@ models:
     model: github.com/keinuma/tech-story/domain/model.User
   Match:
     model: github.com/keinuma/tech-story/domain/model.Match
+  Comment:
+    model: github.com/keinuma/tech-story/domain/model.Comment
   NewStory:
     model: github.com/keinuma/tech-story/presenter/request.NewStory
   NewUser:
     model: github.com/keinuma/tech-story/presenter/request.NewUser
   NewMatch:
     model: github.com/keinuma/tech-story/presenter/request.NewMatch
+  NewComment:
+    model: github.com/keinuma/tech-story/presenter/request.NewComment
   Role:
     model: github.com/keinuma/tech-story/domain/model.Role

@@ -1,9 +1,8 @@
-package graphql
+package graph
 
 import (
-	"gorm.io/gorm"
-
 	"github.com/keinuma/tech-story/infra/store"
+	"gorm.io/gorm"
 )
 
 // This file will not be regenerated automatically.

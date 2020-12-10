@@ -10,8 +10,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
-	"github.com/keinuma/tech-story/graphql"
-	"github.com/keinuma/tech-story/graphql/generated"
+	"github.com/keinuma/tech-story/graph"
+	"github.com/keinuma/tech-story/graph/generated"
 	"github.com/keinuma/tech-story/infra/echo/auth"
 	"github.com/keinuma/tech-story/infra/store"
 )
@@ -29,7 +29,7 @@ func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store
 
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(
 		generated.Config{
-			Resolvers: &graphql.Resolver{
+			Resolvers: &graph.Resolver{
 				DB:        conn,
 				StorePool: storeConn,
 			},
@@ -37,9 +37,9 @@ func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store
 	)
 	graphqlHandler.Use(extension.FixedComplexityLimit(7))
 
-	playgroundHandler := playground.Handler("GraphQL", "/graphql")
+	playgroundHandler := playground.Handler("GraphQL", "/gql")
 
-	s.Engine.POST("/graphql", func(c echo.Context) error {
+	s.Engine.POST("/gql", func(c echo.Context) error {
 		graphqlHandler.ServeHTTP(c.Response(), c.Request())
 		return nil
 	})
