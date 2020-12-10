@@ -9,6 +9,12 @@ type Match {
     story: Story!
     date: Time!
     attendees: [User!]!
+    comments: [Comment!]!
+}
+
+type Comment {
+    text: String!
+    postedAt: Time!
 }
 
 type User {
@@ -35,6 +41,12 @@ input NewMatch {
     attendees: [Int!]!
 }
 
+input NewComment {
+    matchId: Int!
+    text: String!
+    postedAt: Time!
+}
+
 type Query {
     getStories: [Story!]!
     getMatches: [Match!]!
@@ -45,6 +57,11 @@ type Mutation {
     createUser(input: NewUser!): User!
     createMatch(input: NewMatch!): Match!
     deleteUser(userId: Int!): Boolean @hasRole(role: ADMIN)
+    createComment(input: NewComment!): Comment!
+}
+
+type Subscription {
+    createComment(userId: String!): Match
 }
 
 directive @hasRole(role: Role!) on FIELD_DEFINITION
