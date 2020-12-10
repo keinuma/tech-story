@@ -21,6 +21,7 @@ services:
       - 8000:8000
     links:
       - mysql
+      - redis
     env_file:
       - .env
   redis:

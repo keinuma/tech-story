@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -12,11 +13,11 @@ type Store struct {
 	TTL    time.Duration
 }
 
-func NewRedisClient() (*Store, error) {
+func NewRedisClient(ctx context.Context) (*Store, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr: os.Getenv("REDIS_URL"),
 	})
-	err := client.Ping(nil).Err()
+	err := client.Ping(ctx).Err()
 	if err != nil {
 		return nil, err
 	}

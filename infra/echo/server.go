@@ -24,7 +24,7 @@ func Run() {
 	ctx := context.Background()
 	s := newServer()
 	conn := orm.InitDB()
-	storeConn, err := store.NewRedisClient()
+	storeConn, err := store.NewRedisClient(ctx)
 	if err != nil {
 		os.Exit(1)
 	}
