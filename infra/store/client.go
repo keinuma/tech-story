@@ -22,5 +22,5 @@ func NewRedisClient(ctx context.Context) (*Store, error) {
 		return nil, err
 	}
 	defaultTTL := 24 * time.Hour
-	return &Store{Client: client, TTL: defaultTTL}, err
+	return &Store{Client: client, TTL: defaultTTL}, nil
 }
