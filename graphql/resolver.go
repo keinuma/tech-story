@@ -1,11 +1,15 @@
 package graphql
 
-import "gorm.io/gorm"
+import (
+	"github.com/gomodule/redigo/redis"
+	"gorm.io/gorm"
+)
 
 // This file will not be regenerated automatically.
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	DB *gorm.DB
+	DB        *gorm.DB
+	StorePool *redis.Conn
 }

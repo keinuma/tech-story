@@ -3,6 +3,7 @@ package echo
 import (
 	"context"
 	"github.com/keinuma/tech-story/infra/database/orm"
+	"github.com/keinuma/tech-story/infra/store"
 	"os"
 
 	"github.com/labstack/echo"
@@ -23,11 +24,18 @@ func Run() {
 	ctx := context.Background()
 	s := newServer()
 	conn := orm.InitDB()
-	s.InitRouter(ctx, conn)
+	storeConn, err := store.NewRedisClient()
+	if err != nil {
+		os.Exit(1)
+	}
+	s.InitRouter(ctx, conn, storeConn)
 	s.Engine.HideBanner = true
 	s.Engine.HidePort = true
 	logrus.Debug("starting api server")
-	s.Engine.Start(":" + port())
+	err = s.Engine.Start(":" + port())
+	if err != nil {
+		os.Exit(1)
+	}
 }
 
 func port() string {

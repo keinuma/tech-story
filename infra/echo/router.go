@@ -5,6 +5,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gomodule/redigo/redis"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gorm.io/gorm"
@@ -14,7 +15,7 @@ import (
 	"github.com/keinuma/tech-story/infra/echo/auth"
 )
 
-func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB) {
+func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *redis.Conn) {
 	s.Engine.Use(middleware.Logger())
 	s.Engine.Use(middleware.Recover())
 	s.Engine.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -26,9 +27,13 @@ func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB) {
 	s.Engine.Use(auth.ForContext(ctx, conn))
 
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(
-		generated.Config{Resolvers: &graphql.Resolver{
-			DB: conn,
-		}}))
+		generated.Config{
+			Resolvers: &graphql.Resolver{
+				DB:        conn,
+				StorePool: storeConn,
+			},
+		}),
+	)
 	graphqlHandler.Use(extension.FixedComplexityLimit(7))
 
 	playgroundHandler := playground.Handler("GraphQL", "/graphql")
