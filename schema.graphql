@@ -9,7 +9,7 @@ type Match {
     story: Story!
     date: Time!
     attendees: [User!]!
-    comments: [Comment!]!
+    comments: [Comment!]
 }
 
 type Comment {
@@ -61,7 +61,7 @@ type Mutation {
 }
 
 type Subscription {
-    createComment(userId: String!): Match
+    createMatch(userUID: String!): Match
 }
 
 directive @hasRole(role: Role!) on FIELD_DEFINITION
