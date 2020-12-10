@@ -83,7 +83,7 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		CreateComment func(childComplexity int, userID string) int
+		CreateMatch func(childComplexity int, userUUID string) int
 	}
 
 	User struct {
@@ -109,7 +109,7 @@ type QueryResolver interface {
 	GetMatches(ctx context.Context) ([]*model.Match, error)
 }
 type SubscriptionResolver interface {
-	CreateComment(ctx context.Context, userID string) (<-chan *model.Match, error)
+	CreateMatch(ctx context.Context, userUUID string) (<-chan *model.Match, error)
 }
 
 type executableSchema struct {
@@ -271,17 +271,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Story.User(childComplexity), true
 
-	case "Subscription.createComment":
-		if e.complexity.Subscription.CreateComment == nil {
+	case "Subscription.createMatch":
+		if e.complexity.Subscription.CreateMatch == nil {
 			break
 		}
 
-		args, err := ec.field_Subscription_createComment_args(context.TODO(), rawArgs)
+		args, err := ec.field_Subscription_createMatch_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Subscription.CreateComment(childComplexity, args["userId"].(string)), true
+		return e.complexity.Subscription.CreateMatch(childComplexity, args["userUUID"].(string)), true
 
 	case "User.description":
 		if e.complexity.User.Description == nil {
@@ -403,7 +403,7 @@ type Match {
     story: Story!
     date: Time!
     attendees: [User!]!
-    comments: [Comment!]!
+    comments: [Comment!]
 }
 
 type Comment {
@@ -455,7 +455,7 @@ type Mutation {
 }
 
 type Subscription {
-    createComment(userId: String!): Match
+    createMatch(userUUID: String!): Match
 }
 
 directive @hasRole(role: Role!) on FIELD_DEFINITION
@@ -579,18 +579,18 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Subscription_createComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Subscription_createMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["userId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+	if tmp, ok := rawArgs["userUUID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userUUID"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["userId"] = arg0
+	args["userUUID"] = arg0
 	return args, nil
 }
 
@@ -867,14 +867,11 @@ func (ec *executionContext) _Match_comments(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.([]*model.Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚕᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
+	return ec.marshalOComment2ᚕᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_createStory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1354,7 +1351,7 @@ func (ec *executionContext) _Story_user(ctx context.Context, field graphql.Colle
 	return ec.marshalNUser2ᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Subscription_createComment(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+func (ec *executionContext) _Subscription_createMatch(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1371,7 +1368,7 @@ func (ec *executionContext) _Subscription_createComment(ctx context.Context, fie
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Subscription_createComment_args(ctx, rawArgs)
+	args, err := ec.field_Subscription_createMatch_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return nil
@@ -1379,7 +1376,7 @@ func (ec *executionContext) _Subscription_createComment(ctx context.Context, fie
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().CreateComment(rctx, args["userId"].(string))
+		return ec.resolvers.Subscription().CreateMatch(rctx, args["userUUID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2845,9 +2842,6 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 			})
 		case "comments":
 			out.Values[i] = ec._Match_comments(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3015,8 +3009,8 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	}
 
 	switch fields[0].Name {
-	case "createComment":
-		return ec._Subscription_createComment(ctx, fields[0])
+	case "createMatch":
+		return ec._Subscription_createMatch(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
@@ -3323,43 +3317,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 
 func (ec *executionContext) marshalNComment2githubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v model.Comment) graphql.Marshaler {
 	return ec._Comment(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNComment2ᚕᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Comment) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐComment(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
 }
 
 func (ec *executionContext) marshalNComment2ᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *model.Comment) graphql.Marshaler {
@@ -3881,6 +3838,46 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return graphql.MarshalBoolean(*v)
+}
+
+func (ec *executionContext) marshalOComment2ᚕᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Comment) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNComment2ᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐComment(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalOMatch2ᚖgithubᚗcomᚋkeinumaᚋtechᚑstoryᚋdomainᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v *model.Match) graphql.Marshaler {
