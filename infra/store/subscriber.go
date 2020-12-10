@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"sync"
 	"time"
 
@@ -82,4 +83,15 @@ func (s *Subscriber) Receive(ctx context.Context, userUID string) <-chan *model.
 	}()
 
 	return match
+}
+
+func (s *Subscriber) SetUser(ctx context.Context, userUID string) error {
+	result, err := s.Store.Client.SetNX(ctx, userUID, userUID, 60*time.Minute).Result()
+	if err != nil {
+		return err
+	}
+	if result == false {
+		return errors.New("This User name has already used")
+	}
+	return nil
 }
