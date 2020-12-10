@@ -8,7 +8,7 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.13.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/gomodule/redigo v1.8.3 // indirect
+	github.com/go-redis/redis/v8 v8.4.2
 	github.com/joho/godotenv v1.3.0
 	github.com/kr/pretty v0.2.1
 	github.com/labstack/echo v3.3.10+incompatible

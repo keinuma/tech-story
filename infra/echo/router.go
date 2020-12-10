@@ -2,20 +2,21 @@ package echo
 
 import (
 	"context"
+	"gorm.io/gorm"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/gomodule/redigo/redis"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"gorm.io/gorm"
 
 	"github.com/keinuma/tech-story/graphql"
 	"github.com/keinuma/tech-story/graphql/generated"
 	"github.com/keinuma/tech-story/infra/echo/auth"
+	"github.com/keinuma/tech-story/infra/store"
 )
 
-func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *redis.Conn) {
+func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store.Store) {
 	s.Engine.Use(middleware.Logger())
 	s.Engine.Use(middleware.Recover())
 	s.Engine.Use(middleware.CORSWithConfig(middleware.CORSConfig{

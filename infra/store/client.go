@@ -2,25 +2,24 @@ package store
 
 import (
 	"os"
+	"time"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis/v8"
 )
 
-func NewRedisClient() (*redis.Conn, error) {
-	pool := &redis.Pool{
-		MaxIdle:   50,
-		MaxActive: 10000,
-		Dial: func() (redis.Conn, error) {
-			conn, err := redis.Dial("tcp", os.Getenv("REDIS_PORT"))
-			if err != nil {
-				os.Exit(1)
-			}
-			return conn, nil
-		},
-	}
-	conn, err := pool.Dial()
+type Store struct {
+	client redis.UniversalClient
+	ttl    time.Duration
+}
+
+func NewRedisClient() (*Store, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr: os.Getenv("REDIS_URL"),
+	})
+	err := client.Ping(nil).Err()
 	if err != nil {
 		return nil, err
 	}
-	return &conn, err
+	defaultTTL := 24 * time.Hour
+	return &Store{client: client, ttl: defaultTTL}, err
 }

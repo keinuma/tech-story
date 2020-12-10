@@ -1,8 +1,9 @@
 package graphql
 
 import (
-	"github.com/gomodule/redigo/redis"
 	"gorm.io/gorm"
+
+	"github.com/keinuma/tech-story/infra/store"
 )
 
 // This file will not be regenerated automatically.
@@ -11,5 +12,5 @@ import (
 
 type Resolver struct {
 	DB        *gorm.DB
-	StorePool *redis.Conn
+	StorePool *store.Store
 }
