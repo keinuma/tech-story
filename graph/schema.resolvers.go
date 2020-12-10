@@ -25,12 +25,6 @@ func (r *mutationResolver) CreateStory(ctx context.Context, input request.NewSto
 	if err != nil {
 		return nil, err
 	}
-
-	err = r.Subscriber.SetUser(ctx, story.User.UID)
-	if err != nil {
-		return nil, err
-	}
-
 	return story, nil
 }
 
