@@ -16,7 +16,7 @@ const (
 )
 
 func InitDB() *gorm.DB {
-	dsn := GetConnectionString(os.Getenv("DB_HOST"))
+	dsn := GetConnectionString()
 	conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		logrus.Error(err)
@@ -28,13 +28,14 @@ func InitDB() *gorm.DB {
 	return conn
 }
 
-func GetConnectionString(host string) string {
+func GetConnectionString() string {
+	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
 	pass := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
-	logrus.Info(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		user, pass, host, port, dbname))
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		user, pass, host, port, dbname)
+	logrus.Info(dsn)
+	return dsn
 }
