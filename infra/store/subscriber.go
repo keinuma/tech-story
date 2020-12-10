@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 
@@ -61,6 +62,11 @@ func (s *Subscriber) Publish(ctx context.Context, match *model.Match) error {
 }
 
 func (s *Subscriber) Receive(ctx context.Context, userUID string) <-chan *model.Match {
+	_, err := s.Store.Client.SetXX(ctx, userUID, userUID, 60*time.Minute).Result()
+	if err != nil {
+		return nil
+	}
+
 	match := make(chan *model.Match, 1)
 	s.Mutex.Lock()
 	s.MatchChannels[userUID] = match
