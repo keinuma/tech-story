@@ -8,8 +8,8 @@ import (
 )
 
 type Store struct {
-	client redis.UniversalClient
-	ttl    time.Duration
+	Client redis.UniversalClient
+	TTL    time.Duration
 }
 
 func NewRedisClient() (*Store, error) {
@@ -21,5 +21,5 @@ func NewRedisClient() (*Store, error) {
 		return nil, err
 	}
 	defaultTTL := 24 * time.Hour
-	return &Store{client: client, ttl: defaultTTL}, err
+	return &Store{Client: client, TTL: defaultTTL}, err
 }
