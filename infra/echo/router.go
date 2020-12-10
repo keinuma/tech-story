@@ -4,7 +4,6 @@ import (
 	"context"
 	"gorm.io/gorm"
 	"net/http"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -41,7 +40,7 @@ func (s *Server) InitRouter(ctx context.Context, conn *gorm.DB, storeConn *store
 	)
 	graphqlHandler.AddTransport(transport.POST{})
 	graphqlHandler.AddTransport(transport.Websocket{
-		KeepAlivePingInterval: 10 * time.Second,
+		KeepAlivePingInterval: 0,
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				return true
